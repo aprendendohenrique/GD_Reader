@@ -1,21 +1,18 @@
 from pathlib import Path
 
+from gd_parser.character_reader import CharacterReader
+
 
 def main():
-    path = Path(r"C:\Program Files (x86)\Steam\userdata\913021940\219990\remote\save\main")
-    characters = []
+    path = Path(r"C:\Program Files (x86)\Steam\userdata\913021940\219990\remote\save\main\_Roda Qualitativa/player.gdc")
+    character = CharacterReader(path)
 
-    print("Characters: ")
-    for count, file in enumerate(path.iterdir()):
-        characters.append(file)
-        print(f"{count+1} - {file.name.replace('_', '')}")
+    print(character.name)
+    print(character.level)
+    print(character.char_class)
+    print(character.hardcore)
+    print(character.money)
+    print(character.highest_difficulty)
 
-    choice = int(input("Choice: ").strip())
-    char_path = Path(f"{characters[choice - 1]}\player.gdc")
-    with open(char_path, "rb") as file:
-        print(file.readlines())
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-
