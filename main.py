@@ -9,10 +9,13 @@ def main():
 
     print(character.name)
     print(character.level)
-    print(character.char_class)
-    print(character.hardcore)
-    print(character.money)
-    print(character.highest_difficulty)
+    # print(character.char_class)
+
+    print(character.bio.mastery_1)
+    print(character.bio.mastery_2)
+    # print(character.hardcore)
+    # print(character.money)
+    # print(character.highest_difficulty)
 
 if __name__ == "__main__":
     main()

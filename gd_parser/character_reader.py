@@ -1,6 +1,22 @@
 from pathlib import Path
 
 from gd_parser.crypto_data_buffer import CryptoDataBuffer
+from gd_parser.gd_char_bio import GDCharBio
+
+
+CLASS_NAMES = {
+        "tagSkillClassName0001": "Soldier",
+        "tagSkillClassName0002": "Demolitionist",
+        "tagSkillClassName0003": "Occultist",
+        "tagSkillClassName0004": "Nightblade",
+        "tagSkillClassName0005": "Arcanist",
+        "tagSkillClassName0006": "Shaman",
+        "tagSkillClassName0508": "Oathkeeper",
+        "tagSkillClassName0509": "Necromancer",
+    }
+
+def translate_class(tag: str) -> str:
+    return CLASS_NAMES.get(tag, tag)
 
 
 class CharacterReader:
@@ -45,19 +61,28 @@ class CharacterReader:
         save_version = self.reader.read_crypto_int()
 
         self.read_header()
-        print(hex(self.reader.cursor))
 
         zero = self.reader.read_crypto_int(update_key=False)
 
         version = self.reader.read_crypto_int()
 
         self.reader.read_and_discard_uid()
-        print(hex(self.reader.cursor))
 
         self.read_character_info()
+        while True:
+            try:
+                val = self.reader.read_crypto_string()
+                print("STRING FOUND:", val)
+                break
+            except:
+                self.reader.cursor += 1
 
-        # Bio será implementado depois
-        # self.bio = GDBio(self.reader)
+        self.reader.read_block_start()
+
+        print("=== DEBUG BEFORE BIO ===")
+        self.reader.debug_stream(5)
+
+        self.bio = GDCharBio(self.reader)
 
     # ----------------------------------------------------
     # Header
@@ -69,7 +94,8 @@ class CharacterReader:
 
         self.sex = self.reader.read_crypto_byte()
 
-        self.char_class = self.reader.read_crypto_string()
+        raw_class = self.reader.read_crypto_string()
+        self.char_class = translate_class(raw_class)
 
         self.level = self.reader.read_crypto_int()
 
@@ -82,16 +108,11 @@ class CharacterReader:
     # ----------------------------------------------------
 
     def read_character_info(self):
-        print(hex(self.reader.cursor))
-
         self.reader.read_block_start()
-
-        print(hex(self.reader.cursor))
 
         version = self.reader.read_crypto_int()
 
-        print(hex(self.reader.cursor))
-
         self.is_in_main_quest = self.reader.read_crypto_bool()
 
-        print(hex(self.reader.cursor))
+    def dump_next(self):
+        print("NEXT BYTES:", self.reader.read_bytes(64))

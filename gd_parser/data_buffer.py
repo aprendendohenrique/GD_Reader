@@ -5,12 +5,12 @@ class DataBuffer:
     """Sequential binary reader."""
 
     def __init__(self, data: bytes):
-        self.data = data
+        self.bytes = data
         self.cursor = 0
 
     @property
     def length(self):
-        return len(self.data)
+        return len(self.bytes)
 
     def eof(self):
         return self.cursor >= self.length
@@ -19,7 +19,7 @@ class DataBuffer:
         if self.cursor + amount > self.length:
             raise EOFError("End of file reached")
 
-        value = self.data[self.cursor:self.cursor + amount]
+        value = self.bytes[self.cursor:self.cursor + amount]
         self.cursor += amount
         return value
 
@@ -34,3 +34,27 @@ class DataBuffer:
 
     def read_byte(self):
         return self.read_bytes(1)[0]
+
+    def peek(self, n=32):
+        return self.bytes[self.cursor:self.cursor + n]
+
+    def scan_uints(self, n=10):
+        pos = self.cursor
+        vals = []
+
+        for _ in range(n):
+            vals.append(self.read_uint())
+
+        self.cursor = pos
+        return vals
+
+    def debug_stream(self, n=10):
+        pos = self.cursor
+
+        print("DEBUG STREAM:")
+
+        for i in range(n):
+            val = self.read_uint()
+            print(i, hex(val))
+
+        self.cursor = pos
