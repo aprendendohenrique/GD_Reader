@@ -29,11 +29,36 @@ class DataBuffer:
     def read_crypto_key(self):
         encrypted_key = self.read_uint()
         self.key = encrypted_key ^ self.xor_key
-        # chamar o Generate Table
+        self.generate_table(self.key)
+
+    def generate_table(self, key):
+        self.table = [0] * 256
+
+        for i in range(256):
+            key = self.rotate_right(key)
+            key *= 39916801
+            key &= 0xFFFFFFFF
+            self.table[i] = key
+
+    def rotate_right(self, value):
+        return ((value >> 1) | (value << 31)) & 0xFFFFFFFF
+
+    def update_key(self, byts):
+        for byte in byts:
+            self.key ^= self.table[byte]
+
+    def read_crypto_uint(self, byte):
+        raw = self.read_uint()
+
+        value = raw ^ self.key
+
+        self.update_key(struct.pack("<I", raw))
+
+        return value
 
 
 
 data = struct.pack("<I", 1000)
 buffer = DataBuffer(data)
-print(buffer.read_uint())
+buffer.read_crypto_key()
 
