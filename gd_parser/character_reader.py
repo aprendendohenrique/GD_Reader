@@ -69,18 +69,6 @@ class CharacterReader:
         self.reader.read_and_discard_uid()
 
         self.read_character_info()
-        while True:
-            try:
-                val = self.reader.read_crypto_string()
-                print("STRING FOUND:", val)
-                break
-            except:
-                self.reader.cursor += 1
-
-        self.reader.read_block_start()
-
-        print("=== DEBUG BEFORE BIO ===")
-        self.reader.debug_stream(5)
 
         self.bio = GDCharBio(self.reader)
 
@@ -113,6 +101,16 @@ class CharacterReader:
         version = self.reader.read_crypto_int()
 
         self.is_in_main_quest = self.reader.read_crypto_bool()
+        self.has_been_in_game = self.reader.read_crypto_bool()
+
+        self.highest_difficulty = self.reader.read_crypto_byte()
+
+        self.money = self.reader.read_crypto_uint()
+
+        self.reader.read_block_end()
+
+        print("Cursor:", hex(self.reader.cursor))
+        print("Key:", hex(self.reader.key))
 
     def dump_next(self):
         print("NEXT BYTES:", self.reader.read_bytes(64))

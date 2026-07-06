@@ -50,14 +50,14 @@ class CryptoDataBuffer(DataBuffer):
         return value & 0xFF
 
     def _decrypt_bytes(self, amount: int) -> bytes:
-        raw = self.read_bytes(amount)
+        raw = bytearray(self.read_bytes(amount))
 
-        result = bytearray()
+        for i in range(len(raw)):
+            encrypted = raw[i]  # byte original
+            raw[i] = encrypted ^ (self.key & 0xFF)
+            self.key ^= self.table[encrypted]
 
-        for byte in raw:
-            result.append(self._decrypt_byte(byte))
-
-        return bytes(result)
+        return bytes(raw)
 
     # -------------------------
     # Public methods
@@ -127,4 +127,4 @@ class CryptoDataBuffer(DataBuffer):
         return block_version, block_length
 
     def read_block_end(self):
-        return self.read_crypto_int() == 0
+        return self.read_crypto_int(False) == 0

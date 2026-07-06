@@ -9,16 +9,19 @@ class GDCharBio:
         self.read()
 
     def read(self):
-        # entra no bloco do Bio
-        self.reader.read_block_start()
+        print("BIO cursor start:", hex(self.reader.cursor))
 
-        # ⚠️ aqui começa o que nos interessa
+        # version, length = self.reader.read_block_start()
+        print(hex(self.reader.cursor))
 
-        # Mastery 1
-        self.mastery_1 = self.reader.read_crypto_string()
+        for i in range(10):
+            print(i, self.reader.read_crypto_uint(False))
 
-        # Mastery 2
-        self.mastery_2 = self.reader.read_crypto_string()
+        # print("BIO version:", version)
+        # print("BIO length:", length)
+        print("Cursor after block start:", hex(self.reader.cursor))
 
-        # sai do bloco
-        self.reader.read_block_end()
+        length = self.reader.read_crypto_uint()
+        print("First uint (string length?):", length)
+
+        raise SystemExit
