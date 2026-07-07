@@ -1,27 +1,22 @@
 class GDCharBio:
-
     def __init__(self, reader):
         self.reader = reader
-
-        self.mastery_1 = None
-        self.mastery_2 = None
-
         self.read()
 
     def read(self):
-        print("BIO cursor start:", hex(self.reader.cursor))
+        version, length = self.reader.read_block_start()
 
-        # version, length = self.reader.read_block_start()
-        print(hex(self.reader.cursor))
+        self.version = self.reader.read_crypto_int()
 
-        for i in range(10):
-            print(i, self.reader.read_crypto_uint(False))
+        self.level = self.reader.read_crypto_int()
+        self.experience = self.reader.read_crypto_int()
+        self.modifier_points = self.reader.read_crypto_int()
+        self.skill_points = self.reader.read_crypto_int()
+        self.devotion_points = self.reader.read_crypto_int()
+        self.total_devotion = self.reader.read_crypto_int()
 
-        # print("BIO version:", version)
-        # print("BIO length:", length)
-        print("Cursor after block start:", hex(self.reader.cursor))
-
-        length = self.reader.read_crypto_uint()
-        print("First uint (string length?):", length)
-
-        raise SystemExit
+        self.total_strength = self.reader.read_crypto_float()
+        self.total_agility = self.reader.read_crypto_float()
+        self.total_intelligence = self.reader.read_crypto_float()
+        self.health = self.reader.read_crypto_float()
+        self.energy = self.reader.read_crypto_float()

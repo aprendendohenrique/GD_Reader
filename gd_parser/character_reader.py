@@ -1,22 +1,88 @@
+import re
+
 from pathlib import Path
 
 from gd_parser.crypto_data_buffer import CryptoDataBuffer
 from gd_parser.gd_char_bio import GDCharBio
 
 
-CLASS_NAMES = {
-        "tagSkillClassName0001": "Soldier",
-        "tagSkillClassName0002": "Demolitionist",
-        "tagSkillClassName0003": "Occultist",
-        "tagSkillClassName0004": "Nightblade",
-        "tagSkillClassName0005": "Arcanist",
-        "tagSkillClassName0006": "Shaman",
-        "tagSkillClassName0508": "Oathkeeper",
-        "tagSkillClassName0509": "Necromancer",
-    }
+masteries = ["Soldier", "Demolitionist", "Occultist", "Nightblade", "Arcanist", "Shaman", "Inquisitor", "Necromancer", "Oathkeeper"]
 
-def translate_class(tag: str) -> str:
-    return CLASS_NAMES.get(tag, tag)
+classes = {
+    # Classes puras
+    "Soldier": "Soldier",
+    "Demolitionist": "Demolitionist",
+    "Occultist": "Occultist",
+    "Nightblade": "Nightblade",
+    "Arcanist": "Arcanist",
+    "Shaman": "Shaman",
+    "Inquisitor": "Inquisitor",
+    "Necromancer": "Necromancer",
+    "Oathkeeper": "Oathkeeper",
+
+    # Soldier
+    "Soldier + Demolitionist": "Commando",
+    "Soldier + Occultist": "Witchblade",
+    "Soldier + Nightblade": "Blademaster",
+    "Soldier + Arcanist": "Battlemage",
+    "Soldier + Shaman": "Warder",
+    "Soldier + Inquisitor": "Tactician",
+    "Soldier + Necromancer": "Death Knight",
+    "Soldier + Oathkeeper": "Warlord",
+
+    # Demolitionist
+    "Demolitionist + Occultist": "Pyromancer",
+    "Demolitionist + Nightblade": "Saboteur",
+    "Demolitionist + Arcanist": "Sorcerer",
+    "Demolitionist + Shaman": "Elementalist",
+    "Demolitionist + Inquisitor": "Purifier",
+    "Demolitionist + Necromancer": "Defiler",
+    "Demolitionist + Oathkeeper": "Shieldbreaker",
+
+    # Occultist
+    "Occultist + Nightblade": "Witch Hunter",
+    "Occultist + Arcanist": "Warlock",
+    "Occultist + Shaman": "Conjurer",
+    "Occultist + Inquisitor": "Deceiver",
+    "Occultist + Necromancer": "Cabalist",
+    "Occultist + Oathkeeper": "Sentinel",
+
+    # Nightblade
+    "Nightblade + Arcanist": "Spellbreaker",
+    "Nightblade + Shaman": "Trickster",
+    "Nightblade + Inquisitor": "Infiltrator",
+    "Nightblade + Necromancer": "Reaper",
+    "Nightblade + Oathkeeper": "Dervish",
+
+    # Arcanist
+    "Arcanist + Shaman": "Druid",
+    "Arcanist + Inquisitor": "Mage Hunter",
+    "Arcanist + Necromancer": "Spellbinder",
+    "Arcanist + Oathkeeper": "Templar",
+
+    # Shaman
+    "Shaman + Inquisitor": "Vindicator",
+    "Shaman + Necromancer": "Ritualist",
+    "Shaman + Oathkeeper": "Archon",
+
+    # Inquisitor
+    "Inquisitor + Necromancer": "Apostate",
+    "Inquisitor + Oathkeeper": "Paladin",
+
+    # Necromancer
+    "Necromancer + Oathkeeper": "Oppressor",
+}
+
+def get_class(cls):
+    if pattern := re.fullmatch(r"\w+(\d{2})(\d{2})", cls):
+        first_mastery = masteries[int(pattern[1]) - 1]
+        second_mastery = masteries[int(pattern[2]) - 1]
+        raw = f"{first_mastery} + {second_mastery}"
+        return f"{raw}: {classes[raw]}"
+    elif pattern := re.fullmatch(r"\w+(\d{2})", cls):
+        mastery = masteries[int(pattern[1]) - 1]
+        return mastery
+    return None
 
 
 class CharacterReader:
@@ -83,7 +149,7 @@ class CharacterReader:
         self.sex = self.reader.read_crypto_byte()
 
         raw_class = self.reader.read_crypto_string()
-        self.char_class = translate_class(raw_class)
+        self.char_class = get_class(raw_class)
 
         self.level = self.reader.read_crypto_int()
 
@@ -109,8 +175,6 @@ class CharacterReader:
 
         self.reader.read_block_end()
 
-        print("Cursor:", hex(self.reader.cursor))
-        print("Key:", hex(self.reader.key))
 
     def dump_next(self):
         print("NEXT BYTES:", self.reader.read_bytes(64))
