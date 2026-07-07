@@ -20,7 +20,7 @@ class Discord:
             )
 
             try:
-                input("Press Enter to Close Program")
+                input("Press Enter to Close Program ")
                 break
             except KeyboardInterrupt:
                 sys.exit("--Program Closed--")
