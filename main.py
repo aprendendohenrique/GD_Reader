@@ -26,17 +26,16 @@ def main():
 
     path = path / file_names[player_choice-1] / "player.gdc"
 
-    while True:
-        character = CharacterReader(path)
+    character = CharacterReader(path)
 
-        # print(character.name)
-        # print(character.level)
-        # print(character.char_class)
+    # print(character.name)
+    # print(character.level)
+    # print(character.char_class)
 
-        # Discord
-        discord = Discord()
-        discord.update_info(character.name, f"{character.level}", character.char_class)
-        discord.update()
+    # Discord
+    discord = Discord()
+    discord.update_info(character.name, f"{character.level}", character.char_class)
+    discord.update()
 
 if __name__ == "__main__":
     main()
